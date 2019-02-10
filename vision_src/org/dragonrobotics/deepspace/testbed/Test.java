@@ -51,7 +51,7 @@ public class Test {
         // I believe the rasberry pi code already does this.
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        VideoCapture v = new VideoCapture(2);
+        VideoCapture v = new VideoCapture(0);
         v.set(Videoio.CAP_PROP_AUTO_EXPOSURE, 0);
         v.set(Videoio.CAP_PROP_EXPOSURE, -10);
 
@@ -95,9 +95,9 @@ public class Test {
             );
 
             ArrayList<MatOfPoint> tapeContours = new ArrayList<>();
-            boolean result = Vision.getVisionTape(preprocessed, tapeContours);
+            double result = Vision.getVisionTape(preprocessed, tapeContours);
 
-            if(result) {
+            if(result != -100000) {
                 Imgproc.drawContours(
                     contoured,
                     tapeContours,
@@ -111,6 +111,7 @@ public class Test {
                     1,
                     new Scalar(255, 0, 255)
                 );
+                System.out.println(result);
             } else {
                 System.out.println("No tapes found");
             }

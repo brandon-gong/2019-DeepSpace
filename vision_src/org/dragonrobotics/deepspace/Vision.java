@@ -47,19 +47,24 @@ public class Vision {
     /**
      * Preprocess the Mat.
      * Isolate the green channel, resize, and binarize the image.
+     * @param input the input image.
+     * @return The preprocessed result.
      */
     public static Mat preprocess(Mat input) {
 
+        // split into BGR color channels to isolate green later
         List<Mat> channels = new ArrayList<Mat>(3);
         Core.split(input, channels);
 
+        // scale only the green channel of the input image.
         Mat resized = new Mat();
         Size newSize = new Size(
             input.cols() / SCALE_RATIO,
             input.rows() / SCALE_RATIO
         );
-        Imgproc.resize(channels.get(2), resized, newSize);
+        Imgproc.resize(channels.get(1), resized, newSize);
 
+        // Binarize the scaled result to isolate brightest pixels
         Mat thresholded = new Mat();
         Imgproc.threshold(
             resized,
@@ -72,9 +77,16 @@ public class Vision {
         return thresholded;
     }
 
-    public static boolean getVisionTape(Mat input,
+    /**
+     * Find the vision tapes and calculate heading error.
+     * @param input the preprocessed, binarized input image.
+     * @param output a list to which the tapes will be added (if found).
+     * @return -100000 if no tapes are found, error value if tapes are found.
+     */
+    public static double getVisionTape(Mat input,
         ArrayList<MatOfPoint> output) {
 
+        // Find contours of input image. Will crash if input is not preprocessed
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(
             input,
@@ -84,84 +96,60 @@ public class Vision {
             Imgproc.CHAIN_APPROX_SIMPLE
         );
 
+        // These lists will be used throughout the code
         List<MatOfPoint> filteredContours = new ArrayList<>();
         List<MatOfPoint2f> simplifiedContours = new ArrayList<>();
         List<Point> centers = new ArrayList<>();
         List<Double> xorder = new ArrayList<>();
+        List<Integer> pairs = new ArrayList<>();
 
+        // Filter out contours and extract info into the lists defined above.
         for(MatOfPoint contour : contours) {
+            // TODO is contourArea very expensive? Consider using morphology
             if(Imgproc.contourArea(contour) < MIN_CONTOUR_AREA) continue;
 
+            // Calculate the center of mass for each contour.
             Moments moments = Imgproc.moments(contour);
             Point centroid = new Point();
             centroid.x = moments.get_m10() / moments.get_m00();
             centroid.y = moments.get_m01() / moments.get_m00();
 
+            // calculate the simplified polygon for each contour.
             double epsilon = 0.05 * Imgproc.arcLength(
                 new MatOfPoint2f(contour.toArray()), true);
             MatOfPoint2f approx = new MatOfPoint2f();
             Imgproc.approxPolyDP(
                 new MatOfPoint2f(contour.toArray()), approx, epsilon, true);
 
+            // add all information to lists
             filteredContours.add(contour);
             simplifiedContours.add(approx);
             centers.add(centroid);
             xorder.add(centroid.x);
         }
 
-        if(simplifiedContours.size() < 2) return false;
+        // If there are less than two contours, why bother with the rest?
+        if(simplifiedContours.size() < 2) return -100000;
 
+        // Java 8 magic for sorting each list based on the xorder list.
+        // After this step, the contours will be sorted from left to right
+        // (instead of bottom-to-top as OpenCV does by default)
         filteredContours.sort(Comparator.comparingDouble(xorder::indexOf));
         simplifiedContours.sort(Comparator.comparingDouble(xorder::indexOf));
         centers.sort(Comparator.comparingDouble(xorder::indexOf));
 
-        // List<Integer> slants = new ArrayList<>();
-        // int longestIndex = 0;
-        // for(MatOfPoint2f contour : simplifiedContours) {
-        //     double longestLength = 0;
-        //     Point[] vertices = contour.toArray();
-        //     if(vertices.length < 3) {
-        //         slants.add(0);
-        //         continue;
-        //     }
-        //     for(int i = 0; i < vertices.length - 2; i++) {
-        //         Point a = vertices[i];
-        //         Point b = vertices[i+1];
-        //         double segmentLength =
-        //             Math.sqrt(Math.pow(b.y - a.y, 2) + Math.pow(b.x - a.x, 2));
-        //
-        //         if(segmentLength > longestLength) {
-        //             longestLength = segmentLength;
-        //             longestIndex = i;
-        //         }
-        //     }
-        //
-        //     Point a = vertices[longestIndex];
-        //     Point b = vertices[longestIndex + 1];
-        //
-        //     // Try to avoid crashes due to zero divison.
-        //     double denominator = ((b.x - a.x) == 0) ? 1 : b.x - a.x;
-        //     slants.add( ((b.y - a.y) / denominator) < 0 ? 1 : -1 );
-        // }
-        //
-        List<Integer> pairs = new ArrayList<>();
-        // List<Integer> searchKey = new ArrayList<>();
-        // searchKey.add(1);
-        // searchKey.add(-1);
-        // int[] search = {1, -1};
-        // while(slants.size() > 1) {
-        //      int pair = Collections.indexOfSubList(slants, searchKey);
-        //      if(pair == -1) break;
-        //      pairs.add(pair);
-        //      slants.set(pair, 0);
-        //      slants.set(pair + 1, 0);
-        // }
-
+        // Most of the important stuff happens in this loop.
         for(int i = 0; i < simplifiedContours.size() - 1; i++) {
+
+            // Find the longest line segment of each pair of contours.
+
+            // There is a more elegant way to do this than repreating the
+            // same code twice.  But for readability purposes, I dont feel like
+            // nesting it in yet another loop.
             Point[] verticesLeft = simplifiedContours.get(i).toArray();
             double longestLengthLeft = 0;
             int longestIndexLeft = 0;
-            for(int j = 0; j < verticesLeft.length - 2; j++) {
+            for(int j = 0; j < verticesLeft.length - 1; j++) {
                 Point a = verticesLeft[j];
                 Point b = verticesLeft[j+1];
                 double segmentLength =
@@ -176,7 +164,7 @@ public class Vision {
             Point[] verticesRight = simplifiedContours.get(i+1).toArray();
             double longestLengthRight = 0;
             int longestIndexRight = 0;
-            for(int j = 0; j < verticesRight.length - 2; j++) {
+            for(int j = 0; j < verticesRight.length - 1; j++) {
                 Point a = verticesRight[j];
                 Point b = verticesRight[j+1];
                 double segmentLength =
@@ -188,20 +176,39 @@ public class Vision {
                 }
             }
 
-            double slopeLeft = (verticesLeft[longestIndexLeft+1].y - verticesLeft[longestIndexLeft].y) / (verticesLeft[longestIndexLeft+1].x - verticesLeft[longestIndexLeft].x);
-            double slopeRight = (verticesRight[longestIndexRight+1].y - verticesRight[longestIndexRight].y) / (verticesRight[longestIndexRight+1].x - verticesRight[longestIndexRight].x);
+            // Calculate the slope of each tape (y2-y1)/(x2-x1).
+            double slopeLeft = (verticesLeft[longestIndexLeft+1].y
+                             - verticesLeft[longestIndexLeft].y)
+                             / (verticesLeft[longestIndexLeft+1].x
+                             - verticesLeft[longestIndexLeft].x);
+            double slopeRight = (verticesRight[longestIndexRight+1].y
+                              - verticesRight[longestIndexRight].y)
+                              / (verticesRight[longestIndexRight+1].x
+                              - verticesRight[longestIndexRight].x);
 
-            if(slopeLeft < slopeRight) {
+            // derived from setting two slope-point equations equal to each
+            // other.  x = (y2-y1+m1x1-m2x2) / (m1-m2).
+            double x_intersect = (centers.get(i+1).y - centers.get(i).y
+                + slopeLeft*centers.get(i).x - slopeRight*centers.get(i+1).x)
+                / (slopeLeft - slopeRight);
+
+            // plug x-intersection back into one of the original slope point
+            // equations to get the y-intersection.
+            double y_intersect =
+                slopeLeft * (x_intersect - centers.get(i).x) + centers.get(i).y;
+
+            // if they y-intersection of the two tapes is above the average
+            // of the tapes' y-positions, consider it a valid pair.
+            if(y_intersect < (centers.get(i+1).y + centers.get(i).y)/2 ) {
                 pairs.add(i);
             }
 
         }
-        if(pairs.size() < 1) {
-            System.out.println("smol");
-            return false;
-        }
+        if(pairs.size() < 1) return -100000;
 
         // TODO add y-positional checks, relative contour size checks here.
+
+        // Isolate the biggest tapes.
         double largestArea = 0;
         int biggestIndex = 0;
         for(int pair : pairs) {
@@ -213,9 +220,17 @@ public class Vision {
             }
         }
 
+        // add to output.
         output.add(filteredContours.get(biggestIndex));
         output.add(filteredContours.get(biggestIndex+1));
-        return true;
+
+        // calculate offset from center of image and return.
+        // You can use this returned error in conjunction with a PIDController
+        // to adjust the robot accordingly.
+        double xCenter =
+            (centers.get(biggestIndex).x + centers.get(biggestIndex+1).x) / 2;
+        double trueCenter = input.size().width / 2;
+        return xCenter - trueCenter;
     }
 
 }
