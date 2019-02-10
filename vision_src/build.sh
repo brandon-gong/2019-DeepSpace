@@ -1,0 +1,2 @@
+javac org/dragonrobotics/deepspace/testbed/Test.java org/dragonrobotics/deepspace/testbed/StreamFrame.java org/dragonrobotics/deepspace/Vision.java -classpath /home/brandon/Documents/GitHub/opencv/build/bin/opencv-345.jar
+LD_LIBRARY_PATH=/usr/lib/jni/ java -cp /home/brandon/Documents/GitHub/opencv/build/bin/opencv-345.jar:. -Djava.library.path=/home/brandon/Documents/GitHub/opencv/build/lib org.dragonrobotics.deepspace.testbed.Test

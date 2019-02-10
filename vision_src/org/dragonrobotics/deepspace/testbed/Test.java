@@ -22,10 +22,14 @@
 
 package org.dragonrobotics.deepspace.testbed;
 
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.opencv.core.*;
+import org.opencv.core.MatOfPoint;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
+import org.opencv.imgproc.Imgproc;
 
 import org.dragonrobotics.deepspace.Vision;
 
@@ -54,16 +58,64 @@ public class Test {
         Mat input = new Mat();
         v.read(input);
 
-        StreamFrame inputFrame = new StreamFrame(input.cols(), input.rows(), "input");
-        StreamFrame preprocessFrame = new StreamFrame(input.cols() / Vision.SCALE_RATIO, input.rows() / Vision.SCALE_RATIO, "preprocess");
+        StreamFrame inputFrame = new StreamFrame(
+            input.cols(),
+            input.rows(),
+            "input"
+        );
+        StreamFrame preprocessFrame = new StreamFrame(
+            input.cols() / Vision.SCALE_RATIO,
+            input.rows() / Vision.SCALE_RATIO,
+            "preprocess"
+        );
+        StreamFrame taped = new StreamFrame(
+            input.cols() / Vision.SCALE_RATIO,
+            input.rows() / Vision.SCALE_RATIO,
+            "tapes"
+        );
 
         inputFrame.setVisible(true);
         preprocessFrame.setVisible(true);
+        taped.setVisible(true);
 
         while(true) {
             v.read(input);
             inputFrame.update(input);
-            preprocessFrame.update(Vision.preprocess(input));
+
+            Mat preprocessed = Vision.preprocess(input);
+            preprocessFrame.update(preprocessed);
+
+            Mat contoured = new Mat(preprocessed.size(), input.type());
+            Imgproc.rectangle(
+                contoured,
+                new Point(0, 0),
+                new Point(preprocessed.cols(), preprocessed.rows()),
+                new Scalar(0, 0, 0),
+                -1
+            );
+
+            ArrayList<MatOfPoint> tapeContours = new ArrayList<>();
+            boolean result = Vision.getVisionTape(preprocessed, tapeContours);
+
+            if(result) {
+                Imgproc.drawContours(
+                    contoured,
+                    tapeContours,
+                    0,
+                    new Scalar(255, 0, 255)
+                );
+
+                Imgproc.drawContours(
+                    contoured,
+                    tapeContours,
+                    1,
+                    new Scalar(255, 0, 255)
+                );
+            } else {
+                System.out.println("No tapes found");
+            }
+
+            taped.update(contoured);
         }
     }
 
