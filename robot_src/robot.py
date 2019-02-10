@@ -2,6 +2,7 @@ import wpilib
 import wpilib.drive
 import rev
 from ctre import WPI_TalonSRX
+from networktables import NetworkTables
 
 class MyRobot(wpilib.TimedRobot):
 
@@ -17,10 +18,13 @@ class MyRobot(wpilib.TimedRobot):
             self.rearLeft,
             self.frontRight,
             self.rearRight)
+        NetworkTables.initialize()
+        self.visiontable = NetworkTables.getTable("visiontable")
 
     def teleopPeriodic(self):
-        self.drive.driveCartesian(self.stick.getRawAxis(1), 0, self.stick.getRawAxis(2))
+        self.drive.driveCartesian(self.stick.getRawAxis(1), 0, self.stick.getRawAxis(2)*0.25)
         self.lift.set(WPI_TalonSRX.ControlMode.PercentOutput, self.stick.getRawAxis(0));
+        wpilib.SmartDashboard.putNumber("tapeerror", self.visiontable.getNumber("heading_error", -300000))
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
