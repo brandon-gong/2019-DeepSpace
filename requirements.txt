@@ -1,0 +1,10 @@
+robotpy-hal-sim
+robotpy-wpilib-utilities
+robotpy-ctre
+robotpy-rev
+pynetworktables
+wpilib
+pyfrc
+numpy
+flake8
+sphinx
