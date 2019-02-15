@@ -27,6 +27,7 @@ class MyRobot(wpilib.TimedRobot):
         self.armenabled = False
         self.liftup= JoystickButton(self.stick,3)
         self.liftdown= JoystickButton(self.stick,4)
+        self.focToggle = JoystickButton(self.stick,11)
         self.drive = wpilib.drive.MecanumDrive(
             self.frontLeft,
             self.rearLeft,
@@ -45,6 +46,8 @@ class MyRobot(wpilib.TimedRobot):
         self.lift.getTalon().selectProfileSlot(0,0)
         #self.lift.getTalon().configFeedbackSensor(WPI_TalonSRX.FeedbackDevice.QuadEncoder, 0, 0)
         self.lift.getTalon().setQuadraturePosition(0)
+        self.navx.reset()
+
     def disabledPeriodic(self):
         wpilib.SmartDashboard.putNumber("position", self.lift.getTalon().getSelectedSensorPosition())
 
@@ -54,8 +57,14 @@ class MyRobot(wpilib.TimedRobot):
         return val
 
     def teleopPeriodic(self):
-        # self.drive.driveCartesian(self.deadband(self.stick.getX())*0.5, -self.deadband(self.stick.getY())*0.5, self.stick.getZ()*0.125)
-        # #self.lift.set(WPI_TalonSRX.ControlMode.PercentOutput, self.stick.getRawAxis(0));
+        foc_enabled = False
+        if self.focToggle.get():
+            foc_enabled = not foc_enabled
+        if not foc_enabled:
+            self.drive.driveCartesian(self.deadband(self.stick.getX())*0.5, -self.deadband(self.stick.getY())*0.5, self.stick.getZ()*0.125)
+        elif foc_enabled:
+            self.drive.driveCartesian(self.deadband(self.stick.getX())*0.5, -self.deadband(self.stick.getY())*0.5, self.stick.getZ()*0.125, self.navx.getAngle())
+        # self.lift.set(WPI_TalonSRX.ControlMode.PercentOutput, self.stick.getRawAxis(0));
         wpilib.SmartDashboard.putNumber("position", self.lift.getTalon().getSelectedSensorPosition())
         # if self.liftup.get():
         #     self.lift.up()
