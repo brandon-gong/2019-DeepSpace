@@ -22,10 +22,12 @@ from ctre import WPI_TalonSRX
 from wpilib.buttons import JoystickButton
 import wpilib
 
+# Lift subsystem code.
+#
 class Lift():
 
     POSITION_MAX          = -6.624 * (10**4)
-    POSITION_HATCH_TOP    = -6.600 * (10**4)
+    POSITION_HATCH_TOP    = -6.590 * (10**4)
     POSITION_HATCH_MIDDLE = -3.547 * (10**4)
     POSITION_HATCH_BOTTOM =  0.000
 
@@ -35,8 +37,11 @@ class Lift():
 
     POSITION_HUMAN_PLAYER = -3.993 * (10**4)
 
-    def __init__(self,liftTalon,stick):
-        self.lift_motor = liftTalon
+    def __init__(self, lift_talon, upper_switch, lower_switch, stick):
+
+        self.lift_motor = lift_talon
+        self.upper_switch = upper_switch
+        self.lower_switch = lower_switch
 
         self.manual_up    = JoystickButton(stick, 4)
         self.manual_down  = JoystickButton(stick, 3)
@@ -124,6 +129,26 @@ class Lift():
             self.state = "manual_down"
         elif self.state is "manual_up" or self.state is "manual_down":
             self.state = "manual_stop"
+
+        if self.upper_switch.get():
+            self.lift_motor.setQuadraturePosition(int(self.POSITION_MAX))
+            if self.lift_motor.get() > 0.02 or self.state is "manual_up":
+                self.lift_motor.set(
+                        WPI_TalonSRX.ControlMode.PercentOutput,
+                        0
+                )
+                self.state = "manual_stop"
+                return
+        if self.lower_switch.get():
+            self.lift_motor.setQuadraturePosition(0)
+            if self.lift_motor.get() < -0.02 or self.state is "manual_down":
+                self.lift_motor.set(
+                        WPI_TalonSRX.ControlMode.PercentOutput,
+                        0
+                )
+                self.state = "manual_stop"
+                return
+
 
         self.state_table[self.state](self)
 
