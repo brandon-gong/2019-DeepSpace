@@ -21,12 +21,24 @@
 import wpilib
 from ctre import WPI_TalonSRX
 
+# Ball intake subsystem code.
+# Currently this code is very simple: run the rollers in and out depending on
+# input from POV stick.
 class BallIntake():
 
+    # Initialize a new instance of BallIntake.
+    # @param motor - An instance of WPI_TalonSRX that represent the motor
+    # on the ball intake.
     def __init__(self, motor):
         self.motor = motor
 
+    # Update the BallIntake. Currently up on the POV stick runs the ball intake
+    # in, and down on the POV stick runs the ball intake out. Releasing stops
+    # the ball intake.
     def update(self):
+
+        # POV values are organized as angles: directly up is 0, directly left is
+        # 90, directly down is 180, etc.  Center is -1.
         if wpilib.DriverStation.getInstance().getStickPOV(0, 0) == -1:
             self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
         elif wpilib.DriverStation.getInstance().getStickPOV(0, 0) == 0:
@@ -34,6 +46,8 @@ class BallIntake():
         elif wpilib.DriverStation.getInstance().getStickPOV(0, 0) == 180:
             self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, -1)
 
+    # Log values for the BallIntake for debug.
     def log(self):
-        wpilib.SmartDashboard.putNumber("stickpov", wpilib.DriverStation.getInstance().getStickPOV(0, 0))
+        wpilib.SmartDashboard.putNumber("stickpov",
+            wpilib.DriverStation.getInstance().getStickPOV(0, 0))
         wpilib.SmartDashboard.putNumber("ballintake_speed", self.motor.get())

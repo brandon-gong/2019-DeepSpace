@@ -22,7 +22,16 @@ import wpilib
 import wpilib.drive
 from wpilib.buttons import JoystickButton
 
+# Base subsystem code.
+# Controls the mecanum drive motors, taking input from the joystick and the
+# NavX. Position and velocity control are not implemented.
 class Base():
+
+    # Initialize a new instance of Base.
+    # @param fl, rl, fr, rr - the front-left, rear-left, front-right, rear-right
+    # motors of the drive base, respectively.
+    # @param navx - the NavX instance.
+    # @param stick - the Joystick instance.
     def __init__(self, fl, rl, fr, rr, navx, stick):
         self.fl = fl
         self.rl = rl
@@ -34,16 +43,23 @@ class Base():
         self.foctoggle = JoystickButton(self.stick,11)
         self.focenabled = False
 
+    # Ignore all joystick inputs that are below a certain threshold.
     def deadband(self, val):
-        if abs(val) < .1:
+        if abs(val) < .05:
             val = 0
         return val
 
+    # Update the mecanum drive and FOC status.
     def update(self):
+
+        # You *cannot* use a simple if statement without the helper focenabled
+        # variable to toggle FOC state.
         if self.foctoggle.get() and not self.focenabled:
             self.focenabled = True
         elif not self.foctoggle.get() and self.focenabled:
             self.focenabled = False
+
+        # Based on FOC state, decide whether or not to pass NavX heading.
         if self.focenabled:
             self.drive.driveCartesian(
                 self.deadband(self.stick.getX()),
@@ -58,6 +74,7 @@ class Base():
                 self.stick.getZ()*0.25
             )
 
+    # Log as much data as possible to SmartDashboard for debug purposes.
     def log(self):
         wpilib.SmartDashboard.putBoolean("foc_enabled", self.focenabled)
         wpilib.SmartDashboard.putNumber("fl_velocity", self.fl.get())

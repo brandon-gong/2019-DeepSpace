@@ -27,19 +27,18 @@ from networktables import NetworkTables
 
 from subsystems import *
 
-# The main class for robot code.
+# The main class for robot code.  This is the central entry point of the
+# robot's code execution. Here, all subsystems are initialized, updated, and
+# logged in a loop while the robot is running.  There should not be anything
+# other than that in this file.  All code for actually moving parts should be in
+# a corresponding subsystem file.
 class MyRobot(wpilib.TimedRobot):
 
+    # Called once on robot startup.
+    # Declare and initialize the joystick and all of the subsystems.
+    # More documentation on each of these constructors is present in their file.
     def robotInit(self):
         self.stick = wpilib.Joystick(0)
-        self.lift = Lift(WPI_TalonSRX(3), self.stick)
-        self.arm = Arm(
-            wpilib.Solenoid(5,1),
-            wpilib.Solenoid(5,0),
-            wpilib.Solenoid(5,2),
-            wpilib.Solenoid(5,3),
-            self.stick
-        )
         self.base = Base(
             rev.CANSparkMax(4, rev.MotorType.kBrushless),
             rev.CANSparkMax(2, rev.MotorType.kBrushless),
@@ -48,23 +47,38 @@ class MyRobot(wpilib.TimedRobot):
             AHRS.create_spi(wpilib.SPI.Port.kMXP),
             self.stick
         )
+        self.lift = Lift(WPI_TalonSRX(3), wpilib.DigitalInput(0), wpilib.DigitalInput(1), self.stick)
+        self.arm = Arm(
+            wpilib.Solenoid(5,1),
+            wpilib.Solenoid(5,0),
+            wpilib.Solenoid(5,2),
+            wpilib.Solenoid(5,3),
+            self.stick
+        )
         self.ballintake = BallIntake(WPI_TalonSRX(4))
 
+        # Various one-time initializations happen here.
         self.lift.initSensor()
         self.base.navx.reset()
         NetworkTables.initialize()
         self.visiontable = NetworkTables.getTable("visiontable")
 
+    # Called repeatedly in a loop while the robot is disabled.
     def disabledPeriodic(self):
+        # Still log data for the robot to SmartDashboard (for debugging)
         self.lift.log()
         self.arm.log()
         self.base.log()
         self.ballintake.log()
 
+    # Called once on teleop start.
+    # Rezero lift encoder and rezero navx heading.
     def teleopInit(self):
         self.lift.initSensor()
         self.base.navx.reset()
 
+    # Called repeatedly during teleop.
+    # Update all of the subsystems and log new data to SmartDashboard.
     def teleopPeriodic(self):
         self.lift.update()
         self.arm.update()
