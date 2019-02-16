@@ -65,7 +65,7 @@ class Lift():
         "manual_up":
             lambda self: self.lift_motor.set(
                     WPI_TalonSRX.ControlMode.PercentOutput,
-                    -.5
+                    -.60
                 ),
         "manual_down":
             lambda self: self.lift_motor.set(
@@ -75,7 +75,7 @@ class Lift():
         "manual_stop":
             lambda self: self.lift_motor.set(
                     WPI_TalonSRX.ControlMode.PercentOutput,
-                    -0.05
+                    -0.02
                 ),
         "hatch_bottom":
             lambda self: self.lift_motor.set(
@@ -130,18 +130,18 @@ class Lift():
         elif self.state is "manual_up" or self.state is "manual_down":
             self.state = "manual_stop"
 
-        if self.upper_switch.get():
+        if not self.upper_switch.get():
             self.lift_motor.setQuadraturePosition(int(self.POSITION_MAX))
-            if self.lift_motor.get() > 0.02 or self.state is "manual_up":
+            if self.lift_motor.get() < -0.05 or self.state is "manual_up":
                 self.lift_motor.set(
                         WPI_TalonSRX.ControlMode.PercentOutput,
                         0
                 )
                 self.state = "manual_stop"
                 return
-        if self.lower_switch.get():
+        if not self.lower_switch.get():
             self.lift_motor.setQuadraturePosition(0)
-            if self.lift_motor.get() < -0.02 or self.state is "manual_down":
+            if self.lift_motor.get() > 0.05 or self.state is "manual_down":
                 self.lift_motor.set(
                         WPI_TalonSRX.ControlMode.PercentOutput,
                         0
@@ -164,3 +164,5 @@ class Lift():
         wpilib.SmartDashboard.putBoolean("hatch_bottom_button", self.hatch_bottom.get())
         wpilib.SmartDashboard.putBoolean("hatch_middle_button", self.hatch_middle.get())
         wpilib.SmartDashboard.putBoolean("hatch_top_button", self.hatch_top.get())
+        wpilib.SmartDashboard.putBoolean("upper_limit", self.upper_switch.get())
+        wpilib.SmartDashboard.putBoolean("lower_limit", self.lower_switch.get())
