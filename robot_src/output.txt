@@ -1,8 +1,0 @@
-============================= test session starts =============================
-platform win32 -- Python 3.7.2, pytest-4.2.0, py-1.7.0, pluggy-0.8.1
-rootdir: C:\Users\FRC Driver Station\Documents\code\2019-DeepSpace\robot_src\tests, inifile:
-collected 5 items
-
-pyfrc_test.py .....                                                      [100%]
-
-========================== 5 passed in 6.32 seconds ===========================

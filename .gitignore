@@ -130,3 +130,4 @@ hs_err_pid*
 # robotpy things
 robot_src/tests/
 .deploy_cfg
+robot_src/opkg_cache/
