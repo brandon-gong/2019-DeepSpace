@@ -25,16 +25,16 @@ let ui = {
 
 // Gyro rotation
 let updateGyro = (key, value) => {
-    ui.gyro.val = value;
-    ui.gyro.visualVal = Math.floor(ui.gyro.val - ui.gyro.offset);
-    ui.gyro.visualVal %= 360;
-    if (ui.gyro.visualVal < 0) {
-        ui.gyro.visualVal += 360;
-    }
-    ui.gyro.arm.style.transform = `rotate(${ui.gyro.visualVal}deg)`;
-    ui.gyro.number.innerHTML = ui.gyro.visualVal + 'º';
+    // ui.gyro.val = value;
+    // ui.gyro.visualVal = Math.floor(ui.gyro.val - ui.gyro.offset);
+    // ui.gyro.visualVal %= 360;
+    // if (ui.gyro.visualVal < 0) {
+    //     ui.gyro.visualVal += 360;
+    // }
+    // ui.gyro.arm.style.transform = `rotate(${ui.gyro.visualVal}deg)`;
+    ui.gyro.number.innerHTML = value;
 };
-NetworkTables.addKeyListener('/SmartDashboard/drive/navx/yaw', updateGyro);
+NetworkTables.addKeyListener('/SmartDashboard/hatchsolenoid1_status', updateGyro);
 
 // The following case is an example, for a robot with an arm at the front.
 NetworkTables.addKeyListener('/SmartDashboard/arm/encoder', (key, value) => {

@@ -42,10 +42,11 @@ class Base():
         self.stick = stick
         self.foctoggle = JoystickButton(self.stick,11)
         self.focenabled = False
+        self.foctoggledown = False
 
     # Ignore all joystick inputs that are below a certain threshold.
     def deadband(self, val):
-        if abs(val) < .05:
+        if abs(val) < .2:
             val = 0
         return val
 
@@ -54,24 +55,26 @@ class Base():
 
         # You *cannot* use a simple if statement without the helper focenabled
         # variable to toggle FOC state.
-        if self.foctoggle.get() and not self.focenabled:
-            self.focenabled = True
-        elif not self.foctoggle.get() and self.focenabled:
-            self.focenabled = False
+        if self.foctoggle.get() and not self.foctoggledown:
+            self.focenabled = not self.focenabled
+            self.foctoggledown = True
+        elif not self.foctoggle.get() and self.foctoggledown:
+            self.foctoggledown = False
 
+        scaleval = (1 - self.stick.getThrottle()) * 0.8 + 0.1
         # Based on FOC state, decide whether or not to pass NavX heading.
         if self.focenabled:
             self.drive.driveCartesian(
-                self.deadband(self.stick.getX()),
-                -self.deadband(self.stick.getY()),
-                self.stick.getZ()*0.25,
+                self.deadband(self.stick.getX()) * scaleval * 2,
+                -self.deadband(self.stick.getY()) * scaleval,
+                self.stick.getZ()*0.25 * scaleval,
                 self.navx.getAngle()
             )
         else:
             self.drive.driveCartesian(
-                self.deadband(self.stick.getX()),
-                -self.deadband(self.stick.getY()),
-                self.stick.getZ()*0.25
+                self.deadband(self.stick.getX()) * scaleval * 2,
+                -self.deadband(self.stick.getY()) * scaleval,
+                self.stick.getZ()*0.25 * scaleval
             )
 
     # Log as much data as possible to SmartDashboard for debug purposes.

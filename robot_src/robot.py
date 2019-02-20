@@ -49,10 +49,10 @@ class MyRobot(wpilib.TimedRobot):
         )
         self.lift = Lift(WPI_TalonSRX(3), wpilib.DigitalInput(0), wpilib.DigitalInput(1), self.stick)
         self.arm = Arm(
-            wpilib.Solenoid(5,1),
-            wpilib.Solenoid(5,0),
             wpilib.Solenoid(5,2),
-            wpilib.Solenoid(5,3),
+            wpilib.Solenoid(5,4),
+            wpilib.Solenoid(5,1),
+            wpilib.Solenoid(5,5),
             self.stick
         )
         self.ballintake = BallIntake(WPI_TalonSRX(4))
@@ -70,12 +70,14 @@ class MyRobot(wpilib.TimedRobot):
         self.arm.log()
         self.base.log()
         self.ballintake.log()
+        wpilib.SmartDashboard.putNumber("visionerror", self.visiontable.getNumber("heading_error", 0))
 
     # Called once on teleop start.
     # Rezero lift encoder and rezero navx heading.
     def teleopInit(self):
         self.lift.initSensor()
         self.base.navx.reset()
+
 
     # Called repeatedly during teleop.
     # Update all of the subsystems and log new data to SmartDashboard.

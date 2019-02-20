@@ -41,9 +41,9 @@ class BallIntake():
         # 90, directly down is 180, etc.  Center is -1.
         if wpilib.DriverStation.getInstance().getStickPOV(0, 0) == -1:
             self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
-        elif wpilib.DriverStation.getInstance().getStickPOV(0, 0) == 0:
-            self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 1)
         elif wpilib.DriverStation.getInstance().getStickPOV(0, 0) == 180:
+            self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 1)
+        elif wpilib.DriverStation.getInstance().getStickPOV(0, 0) == 0:
             self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, -1)
 
     # Log values for the BallIntake for debug.

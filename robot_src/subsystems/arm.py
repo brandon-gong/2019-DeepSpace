@@ -38,8 +38,8 @@ class Arm():
 
         # the corresponding solenoids for each subsystem must be in opposite
         # states.
-        self.hatchsolenoid1.set(True)
-        self.hatchsolenoid2.set(False)
+        self.hatchsolenoid1.set(False)
+        self.hatchsolenoid2.set(True)
         self.armsolenoid1.set(True)
         self.armsolenoid2.set(False)
 

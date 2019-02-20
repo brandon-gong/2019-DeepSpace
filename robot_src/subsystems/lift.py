@@ -30,13 +30,13 @@ class Lift():
     # Encoder constants for the lift.
     # TODO recalibrate.
     POSITION_MAX          = -6.624 * (10**4)
-    POSITION_HATCH_TOP    = -6.590 * (10**4)
-    POSITION_HATCH_MIDDLE = -3.547 * (10**4)
+    POSITION_HATCH_TOP    = -6.300 * (10**4)
+    POSITION_HATCH_MIDDLE = -3.022 * (10**4)
     POSITION_HATCH_BOTTOM =  0.000
 
-    POSITION_BALL_TOP     = -6.324 * (10**4)
-    POSITION_BALL_MIDDLE  = -5.670 * (10**4)
-    POSITION_BALL_BOTTOM  = -2.632 * (10**4)
+    POSITION_BALL_TOP     = -6.400 * (10**4)
+    POSITION_BALL_MIDDLE  = -4.735  * (10**4)
+    POSITION_BALL_BOTTOM  = -2.323 * (10**4)
 
     POSITION_HUMAN_PLAYER = -3.993 * (10**4)
 
