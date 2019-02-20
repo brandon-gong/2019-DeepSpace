@@ -1,4 +1,4 @@
-#vision_src/org/dragonrobotics/deepspace/testbed/* linguist-detectable=false
+vision_src/org/dragonrobotics/deepspace/testbed/* linguist-detectable=false
 dashboard_src/src/networktables/* linguist-vendored
 dashboard_src/src/connection.js linguist-vendored
 dashboard_src/src/main.js linguist-vendored
