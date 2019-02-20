@@ -1,4 +1,4 @@
-<img src="logo.png" align="left" height=90 />
+<img src="logo.png" align="left" height=100 />
 
 # Deep Space 2019
 [![Build Status](https://travis-ci.org/dragonrobotics/2018-PowerUp.svg?branch=master)](https://travis-ci.org/dragonrobotics/2019-DeepSpace)<br><br>
