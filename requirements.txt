@@ -2,6 +2,7 @@ robotpy-hal-sim
 robotpy-wpilib-utilities
 robotpy-ctre
 robotpy-rev
+robotpy-navx
 pynetworktables
 wpilib
 pyfrc
