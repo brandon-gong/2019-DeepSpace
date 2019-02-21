@@ -4,5 +4,5 @@ python:
 install:
 - pip install -r requirements.txt
 script:
-- yes | python robot_src/robot.py test
+#- yes | python robot_src/robot.py test
 - flake8 --exclude=vision_src/ --exit-zero
