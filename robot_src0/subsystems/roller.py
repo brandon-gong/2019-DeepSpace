@@ -5,7 +5,7 @@ from .led import LEDController
 
 class Roller():
 
-    POSITION_TOP = 1000
+    POSITION_TOP = 3100
 
     def __init__(self, roller_motor, pivot,stick,initial_state):
         self.roller_motor = roller_motor
@@ -14,13 +14,20 @@ class Roller():
         self.rollerenabler = JoystickButton(self.stick, 14)
         self.pivotupbutton = JoystickButton(self.stick, 5)
         self.pivotdownbutton = JoystickButton(self.stick, 10)
+        self.pistonoutbutton = JoystickButton(self.stick, 8)
+        self.pistoninbutton = JoystickButton(self.stick, 7)
         #self.pivotstopbutton = JoystickButton(self.stick, 14)
         #self.pivotinitbutton = JoystickButton(self.stick, 13)
-        self.rollerout = JoystickButton(self.stick, 6)
-        self.rollerin = JoystickButton(self.stick,9)
+        self.rollerout = JoystickButton(self.stick, 9)
+        self.rollerin = JoystickButton(self.stick,6)
         self.state = initial_state
         self.pivot.selectProfileSlot(0,0)
         self.switch =  wpilib.DigitalInput(2)
+
+        self.sol2 = wpilib.Solenoid(5,3)
+        self.sol1 = wpilib.Solenoid(5,0)
+        self.sol1.set(False)
+        self.sol2.set(True)
 
     def update(self):
 
@@ -28,6 +35,8 @@ class Roller():
             self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
             self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
             self.state = "manual"
+            self.sol1.set(False)
+            self.sol2.set(True)
             return
 
         if self.state == "manual":
@@ -35,14 +44,22 @@ class Roller():
             #     self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
             # else:
             #     self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, self.stick.getY())
-            pass
+            #pass
 
-        elif self.pivotupbutton.get():
-            #self.pivot.setQuadraturePosition(0)
-            self.state = "up"
+            if self.pivotupbutton.get():
+                #self.pivot.setQuadraturePosition(0)
+                self.state = "up"
 
-        elif self.pivotdownbutton.get():
-            self.state = "down"
+            elif self.pivotdownbutton.get():
+                self.state = "down"
+
+            if self.pistonoutbutton.get():
+                self.sol1.set(True)
+                self.sol2.set(False)
+
+            if self.pistoninbutton.get():
+                self.sol1.set(False)
+                self.sol2.set(True)
 
         #elif self.pivotstopbutton.get():
             #self.pivot.setQuadraturePosition(0)
@@ -55,13 +72,14 @@ class Roller():
 
         if self.rollerin.get():
             self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 1)
-        elif self.rollerout.get():
-            self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, -1)
+        #elif self.rollerout.get():
+        #    self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, -1)
         else:
             self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
 
     def log(self):
         wpilib.SmartDashboard.putString("roller_state", self.state)
+        wpilib.SmartDashboard.putNumber("roller_position", self.pivot.getSelectedSensorPosition())
 
     def state_init(self):
         if self.rollerenabler.get():
@@ -82,14 +100,30 @@ class Roller():
 
     def state_up(self):
         self.pivot.set(WPI_TalonSRX.ControlMode.Position, self.POSITION_TOP)
-        if self.pivot.getSelectedSensorPosition() > self.POSITION_TOP + 10:
-            self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
-            self.state = 'manual'
+        #if self.pivot.getSelectedSensorPosition() > self.POSITION_TOP + 500:
+        #    self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
+        #    self.state = 'manual'
+        if self.pistonoutbutton.get():
+            self.sol1.set(True)
+            self.sol2.set(False)
+
+        if self.pistoninbutton.get():
+            self.sol1.set(False)
+            self.sol2.set(True)
+
     def state_down(self):
         self.pivot.set(
                 WPI_TalonSRX.ControlMode.PercentOutput,
                 -.4
             )
+        if self.pistonoutbutton.get():
+            self.sol1.set(True)
+            self.sol2.set(False)
+
+        if self.pistoninbutton.get():
+            self.sol1.set(False)
+            self.sol2.set(True)
+
     state_table = {
         "manual": state_manual,
         "up": state_up,

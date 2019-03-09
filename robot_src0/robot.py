@@ -38,6 +38,7 @@ class MyRobot(wpilib.TimedRobot):
     # Declare and initialize the joystick and all of the subsystems.
     # More documentation on each of these constructors is present in their file.
     def robotInit(self):
+
         wpilib.CameraServer.launch()
         self.stick = wpilib.Joystick(0)
         self.base = Base(
@@ -83,6 +84,7 @@ class MyRobot(wpilib.TimedRobot):
         self.arm.log()
         self.base.log()
         self.ballintake.log()
+        self.roller.log()
         self.ledController.update()
         wpilib.SmartDashboard.putNumber("visionerror", self.visiontable.getNumber("heading_error", 0))
 
@@ -91,6 +93,7 @@ class MyRobot(wpilib.TimedRobot):
     def teleopInit(self):
         self.lift.initSensor()
         self.base.navx.reset()
+        self.roller.state = "init"
 
 
     # Called repeatedly during teleop.

@@ -83,6 +83,10 @@ class Lift():
         LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
 
     def state_manual_down(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.PercentOutput,
+                .25
+            )
         LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
 
     def state_manual_stop(self):

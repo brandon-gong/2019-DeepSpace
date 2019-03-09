@@ -21,7 +21,7 @@ class LEDController():
     class __LEDController():
         def __init__(self):
             try:
-                self.serial = wpilib.SerialPort(9600,2)
+                self.serial = wpilib.SerialPort(9600,3)
                 #self.serial.writeString("5002")
             except:
                 print("Couldn't Open Port")

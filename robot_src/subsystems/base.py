@@ -61,7 +61,7 @@ class Base():
         elif not self.foctoggle.get() and self.foctoggledown:
             self.foctoggledown = False
 
-        scaleval = (1 - self.stick.getThrottle()) * 0.8 + 0.1
+        scaleval = (1 - self.stick.getThrottle()) * 0.7 + 0.2
         # Based on FOC state, decide whether or not to pass NavX heading.
         if self.focenabled:
             self.drive.driveCartesian(
