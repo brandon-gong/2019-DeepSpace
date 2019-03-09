@@ -21,6 +21,7 @@
 from ctre import WPI_TalonSRX
 from wpilib.buttons import JoystickButton
 import wpilib
+from .led import LEDController
 
 # Lift subsystem code.
 # The lift is implemented as one large state machine, controlling the lift
@@ -62,6 +63,8 @@ class Lift():
         self.hatch_middle = JoystickButton(stick, 9)
         self.hatch_top    = JoystickButton(stick, 8)
 
+        self.lift_disabler = JoystickButton(stick, 14)
+
         self.state = "manual_stop"
 
     def getTalon(self):
@@ -72,58 +75,114 @@ class Lift():
         self.lift_motor.selectProfileSlot(0,0)
         self.lift_motor.setQuadraturePosition(0)
 
+    def state_manual_up(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.PercentOutput,
+                -.60
+            )
+        LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+
+    def state_manual_down(self):
+        LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
+
+    def state_manual_stop(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.PercentOutput,
+                -0.05
+            )
+
+    def state_hatch_bottom(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.Position,
+                self.POSITION_HATCH_BOTTOM
+            )
+        if abs(self.lift_motor.getSelectedSensorPosition() - self.POSITION_HATCH_BOTTOM) > 10:
+            return
+        elif self.lift_motor.getSelectedSensorPosition() < self.POSITION_HATCH_BOTTOM:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+        elif self.lift_motor.getSelectedSensorPosition() > self.POSITION_HATCH_BOTTOM:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
+
+    def state_hatch_middle(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.Position,
+                self.POSITION_HATCH_MIDDLE
+            )
+        if abs(self.lift_motor.getSelectedSensorPosition() - self.POSITION_HATCH_MIDDLE) > 10:
+            return
+        elif self.lift_motor.getSelectedSensorPosition() < self.POSITION_HATCH_MIDDLE:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+        elif self.lift_motor.getSelectedSensorPosition() > self.POSITION_HATCH_MIDDLE:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
+
+    def state_hatch_top(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.Position,
+                self.POSITION_HATCH_TOP
+            )
+        if abs(self.lift_motor.getSelectedSensorPosition() - self.POSITION_HATCH_TOP) > 10:
+            return
+        elif self.lift_motor.getSelectedSensorPosition() < self.POSITION_HATCH_TOP:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+        elif self.lift_motor.getSelectedSensorPosition() > self.POSITION_HATCH_TOP:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
+
+    def state_ball_bottom(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.Position,
+                self.POSITION_BALL_BOTTOM
+            )
+        if abs(self.lift_motor.getSelectedSensorPosition() - self.POSITION_BALL_BOTTOM) > 10:
+            return
+        elif self.lift_motor.getSelectedSensorPosition() < self.POSITION_BALL_BOTTOM:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+        elif self.lift_motor.getSelectedSensorPosition() > self.POSITION_BALL_BOTTOM:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
+
+    def state_ball_middle(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.Position,
+                self.POSITION_BALL_MIDDLE
+            )
+        if abs(self.lift_motor.getSelectedSensorPosition() - self.POSITION_BALL_MIDDLE) > 10:
+            return
+        elif self.lift_motor.getSelectedSensorPosition() < self.POSITION_BALL_MIDDLE:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+        elif self.lift_motor.getSelectedSensorPosition() > self.POSITION_BALL_MIDDLE:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
+
+    def state_ball_top(self):
+        self.lift_motor.set(
+                WPI_TalonSRX.ControlMode.Position,
+                self.POSITION_BALL_TOP
+            )
+        if abs(self.lift_motor.getSelectedSensorPosition() - self.POSITION_BALL_TOP) > 10:
+            return
+        elif self.lift_motor.getSelectedSensorPosition() < self.POSITION_BALL_TOP:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+        elif self.lift_motor.getSelectedSensorPosition() > self.POSITION_BALL_TOP:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
+
+
     # Large table with all of the states.  This is a dictionary that will let
     # you look up functions by the name of the state.
     state_table = {
-        "manual_up":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.PercentOutput,
-                    -.60
-                ),
-        "manual_down":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.PercentOutput,
-                    .25
-                ),
-        "manual_stop":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.PercentOutput,
-                    -0.05
-                ),
-        "hatch_bottom":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.Position,
-                    self.POSITION_HATCH_BOTTOM
-                ),
-        "hatch_middle":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.Position,
-                    self.POSITION_HATCH_MIDDLE
-                ),
-        "hatch_top":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.Position,
-                    self.POSITION_HATCH_TOP
-                ),
-        "ball_bottom":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.Position,
-                    self.POSITION_BALL_BOTTOM
-                ),
-        "ball_middle":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.Position,
-                    self.POSITION_BALL_MIDDLE
-                ),
-        "ball_top":
-            lambda self: self.lift_motor.set(
-                    WPI_TalonSRX.ControlMode.Position,
-                    self.POSITION_BALL_TOP
-                )
+        "manual_up": state_manual_up,
+        "manual_down": state_manual_down,
+        "manual_stop": state_manual_stop,
+        "hatch_bottom": state_hatch_bottom,
+        "hatch_middle": state_hatch_middle,
+        "hatch_top": state_hatch_top,
+        "ball_bottom": state_ball_bottom,
+        "ball_middle": state_ball_middle,
+        "ball_top": state_ball_top
     }
 
     # update the lift.
     def update(self):
+        if self.lift_disabler.get():
+            return
+
         if self.ball_bottom.get():
             self.state = "ball_bottom"
         elif self.ball_middle.get():

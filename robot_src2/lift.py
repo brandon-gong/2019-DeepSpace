@@ -21,6 +21,8 @@
 from ctre import WPI_TalonSRX
 from wpilib.buttons import JoystickButton
 import wpilib
+from .led import LEDController
+
 
 # Lift subsystem code.
 # The lift is implemented as one large state machine, controlling the lift
@@ -88,7 +90,7 @@ class Lift():
         "manual_stop":
             lambda self: self.lift_motor.set(
                     WPI_TalonSRX.ControlMode.PercentOutput,
-                    -0.05
+                    -0.02
                 ),
         "hatch_bottom":
             lambda self: self.lift_motor.set(
@@ -149,7 +151,7 @@ class Lift():
         # encoder and go into manual_stop state.
         if not self.upper_switch.get():
             self.lift_motor.setQuadraturePosition(int(self.POSITION_MAX))
-            if self.lift_motor.get() < -0.07 or self.state is "manual_up":
+            if self.lift_motor.get() < -0.05 or self.state is "manual_up":
                 self.lift_motor.set(
                         WPI_TalonSRX.ControlMode.PercentOutput,
                         0
@@ -158,7 +160,7 @@ class Lift():
                 return
         if not self.lower_switch.get():
             self.lift_motor.setQuadraturePosition(0)
-            if self.lift_motor.get() > 0.07 or self.state is "manual_down":
+            if self.lift_motor.get() > 0.05 or self.state is "manual_down":
                 self.lift_motor.set(
                         WPI_TalonSRX.ControlMode.PercentOutput,
                         0
@@ -169,6 +171,10 @@ class Lift():
         # execute the state.
         self.state_table[self.state](self)
 
+        if self.lift_motor.get() > 0.05:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
+        elif self.lift_motor.get() < -0.05:
+            LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
     # Log as much data as possible to SmartDashboard.
     def log(self):
         wpilib.SmartDashboard.putString("lift_state", self.state)

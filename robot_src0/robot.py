@@ -57,46 +57,58 @@ class MyRobot(wpilib.TimedRobot):
             self.stick
         )
         self.ballintake = BallIntake(WPI_TalonSRX(4))
-
+        self.ledController = LEDController.getInstance()
+        self.ledController.setState(5002)
         # Various one-time initializations happen here.
         self.lift.initSensor()
         self.base.navx.reset()
         NetworkTables.initialize()
         self.visiontable = NetworkTables.getTable("visiontable")
+        self.lights = False
+        self.op = False
+
+        self.roller = Roller(WPI_TalonSRX(20), WPI_TalonSRX(10), self.stick, "init")
 
     # Called repeatedly in a loop while the robot is disabled.
     def disabledPeriodic(self):
-        # Still log data for the robot to SmartDashboard (for debugging)
+
+        if wpilib.DriverStation.getInstance().getAlliance() == wpilib.DriverStation.Alliance.Blue:
+            self.ledController.setState(LEDController.STATE_BLUE_STANDBY)
+        elif wpilib.DriverStation.getInstance().getAlliance() == wpilib.DriverStation.Alliance.Red:
+            self.ledController.setState(LEDController.STATE_RED_STANDBY)
+        else:
+            self.ledController.setState(LEDController.STATE_DISABLED)
+
         self.lift.log()
         self.arm.log()
         self.base.log()
         self.ballintake.log()
-        #wpilib.SmartDashboard.putNumber("visionerror", self.visiontable.getNumber("heading_error", 0))
+        self.ledController.update()
+        wpilib.SmartDashboard.putNumber("visionerror", self.visiontable.getNumber("heading_error", 0))
 
     # Called once on teleop start.
     # Rezero lift encoder and rezero navx heading.
     def teleopInit(self):
-        pass
-        # self.lift.initSensor()
-        # self.base.navx.reset()
+        self.lift.initSensor()
+        self.base.navx.reset()
 
 
     # Called repeatedly during teleop.
     # Update all of the subsystems and log new data to SmartDashboard.
     def teleopPeriodic(self):
+        self.base.update()
         self.lift.update()
         self.arm.update()
-        self.base.update()
         self.ballintake.update()
+        self.roller.update()
+        self.ledController.update()
 
         self.lift.log()
         self.arm.log()
         self.base.log()
         self.ballintake.log()
-
-    autonomousInit = teleopInit
-    autonomousPeriodic = teleopPeriodic
-
+        self.roller.log()
+        self.ledController.log()
 
 
 if __name__ == "__main__":

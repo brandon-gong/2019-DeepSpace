@@ -20,6 +20,7 @@
 
 import wpilib
 from wpilib.buttons import JoystickButton
+from .led import LEDController
 
 # Arm subsystem code.
 # Controls the arm and the hatch grabber in one class.  This class is basically
@@ -67,6 +68,7 @@ class Arm():
         if self.hatchbutton.get() and not self.hatchenabled:
             self.hatchenabled = True
             self.toggleHatch()
+            LEDController.getInstance().setState(LEDController.STATE_HATCH)
         elif not self.hatchbutton.get() and self.hatchenabled:
             self.hatchenabled = False
 
