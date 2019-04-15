@@ -41,7 +41,7 @@ class BallIntake():
         # POV values are organized as angles: directly up is 0, directly left is
         # 90, directly down is 180, etc.  Center is -1.
         if wpilib.DriverStation.getInstance().getStickPOV(0, 0) == -1:
-            self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
+            self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, .1)
             LEDController.getInstance().setState(LEDController.STATE_BALL_MOTION)
         elif wpilib.DriverStation.getInstance().getStickPOV(0, 0) == 180:
             self.motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 1)

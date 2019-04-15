@@ -20,24 +20,30 @@ class LEDController():
 
     class __LEDController():
         def __init__(self):
+            #self.serial.reset()
             try:
-                self.serial = wpilib.SerialPort(9600,3)
+                self.serial = wpilib.SerialPort(9600,2)
+                self.connected = True
                 #self.serial.writeString("5002")
             except:
                 print("Couldn't Open Port")
+                self.connected = False
             self.state = 0
             self.last = self.state
 
         def update(self):
-            if self.state == self.last:
-                pass
-            else:
-                try:
-                    self.serial.writeString(str(self.state))
-                    self.last = self.state
-                except:
-                    print("Write to serial port failed.")
+            if self.connected:
+                if self.state == self.last:
                     pass
+                else:
+                    try:
+                        self.serial.writeString(str(self.state))
+                        self.last = self.state
+                    except:
+                        print("Write to serial port failed.")
+                        pass
+            else:
+                print("Not Connected")
 
         def log(self):
             wpilib.SmartDashboard.putNumber("ledstate", self.state)

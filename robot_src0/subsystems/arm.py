@@ -41,8 +41,8 @@ class Arm():
         # states.
         self.hatchsolenoid1.set(False)
         self.hatchsolenoid2.set(True)
-        self.armsolenoid1.set(True)
-        self.armsolenoid2.set(False)
+        self.armsolenoid1.set(False)
+        self.armsolenoid2.set(True)
 
         # Currently trigger and front button.
         # TODO separate controls out into separate config class.

@@ -31,13 +31,13 @@ class Lift():
     # Encoder constants for the lift.
     # TODO recalibrate.
     POSITION_MAX          = -6.624 * (10**4)
-    POSITION_HATCH_TOP    = -6.300 * (10**4)
-    POSITION_HATCH_MIDDLE = -3.022 * (10**4)
+    POSITION_HATCH_TOP    = -3.265 * (10**4)
+    POSITION_HATCH_MIDDLE = -3.265 * (10**4)
     POSITION_HATCH_BOTTOM =  0.000
 
-    POSITION_BALL_TOP     = -6.400 * (10**4)
-    POSITION_BALL_MIDDLE  = -4.735  * (10**4)
-    POSITION_BALL_BOTTOM  = -2.323 * (10**4)
+    POSITION_BALL_TOP     = -6.500 * (10**4)
+    POSITION_BALL_MIDDLE  = -3.184  * (10**4)
+    POSITION_BALL_BOTTOM  = -0.000 * (10**4)
 
     POSITION_HUMAN_PLAYER = -3.993 * (10**4)
 
@@ -78,14 +78,14 @@ class Lift():
     def state_manual_up(self):
         self.lift_motor.set(
                 WPI_TalonSRX.ControlMode.PercentOutput,
-                -.60
+                -.8
             )
         LEDController.getInstance().setState(LEDController.STATE_LIFT_UP)
 
     def state_manual_down(self):
         self.lift_motor.set(
                 WPI_TalonSRX.ControlMode.PercentOutput,
-                .25
+                .45
             )
         LEDController.getInstance().setState(LEDController.STATE_LIFT_DOWN)
 

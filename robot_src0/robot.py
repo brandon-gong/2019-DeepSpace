@@ -38,8 +38,10 @@ class MyRobot(wpilib.TimedRobot):
     # Declare and initialize the joystick and all of the subsystems.
     # More documentation on each of these constructors is present in their file.
     def robotInit(self):
-
-        wpilib.CameraServer.launch()
+        try:
+            wpilib.CameraServer.launch()
+        except:
+            pass
         self.stick = wpilib.Joystick(0)
         self.base = Base(
             rev.CANSparkMax(4, rev.MotorType.kBrushless),
@@ -57,43 +59,63 @@ class MyRobot(wpilib.TimedRobot):
             wpilib.Solenoid(5,5),
             self.stick
         )
+        self.testvar = 0
         self.ballintake = BallIntake(WPI_TalonSRX(4))
-        self.ledController = LEDController.getInstance()
-        self.ledController.setState(5002)
+        try:
+            self.ledController = LEDController.getInstance()
+        except:
+            pass
+
         # Various one-time initializations happen here.
         self.lift.initSensor()
         self.base.navx.reset()
-        NetworkTables.initialize()
-        self.visiontable = NetworkTables.getTable("visiontable")
+        try:
+            NetworkTables.initialize()
+        except:
+            pass
+        try:
+            self.visiontable = NetworkTables.getTable("visiontable")
+        except:
+            pass
         self.lights = False
         self.op = False
-
+        self.testButton = JoystickButton(self.stick,16)
         self.roller = Roller(WPI_TalonSRX(20), WPI_TalonSRX(10), self.stick, "init")
 
     # Called repeatedly in a loop while the robot is disabled.
     def disabledPeriodic(self):
-
-        if wpilib.DriverStation.getInstance().getAlliance() == wpilib.DriverStation.Alliance.Blue:
-            self.ledController.setState(LEDController.STATE_BLUE_STANDBY)
-        elif wpilib.DriverStation.getInstance().getAlliance() == wpilib.DriverStation.Alliance.Red:
-            self.ledController.setState(LEDController.STATE_RED_STANDBY)
-        else:
+        try:
+            if wpilib.DriverStation.getInstance().getAlliance() == wpilib.DriverStation.Alliance.Blue:
+                self.ledController.setState(LEDController.STATE_BLUE_STANDBY)
+            elif wpilib.DriverStation.getInstance().getAlliance() == wpilib.DriverStation.Alliance.Red:
+                self.ledController.setState(LEDController.STATE_RED_STANDBY)
+            else:
+                self.ledController.setState(LEDController.STATE_DISABLED)
+        except:
             self.ledController.setState(LEDController.STATE_DISABLED)
+
 
         self.lift.log()
         self.arm.log()
         self.base.log()
         self.ballintake.log()
         self.roller.log()
+        if self.testButton.get():
+            if self.testvar == 17:
+                self.testvar =0
+            self.ledController.setState(self.testvar)
+            self.testvar += 1
         self.ledController.update()
         wpilib.SmartDashboard.putNumber("visionerror", self.visiontable.getNumber("heading_error", 0))
 
     # Called once on teleop start.
     # Rezero lift encoder and rezero navx heading.
     def teleopInit(self):
+
         self.lift.initSensor()
         self.base.navx.reset()
         self.roller.state = "init"
+        self.ledController.update()
 
 
     # Called repeatedly during teleop.
@@ -104,6 +126,7 @@ class MyRobot(wpilib.TimedRobot):
         self.arm.update()
         self.ballintake.update()
         self.roller.update()
+        self.ledController.setState(11)
         self.ledController.update()
 
         self.lift.log()
@@ -113,6 +136,8 @@ class MyRobot(wpilib.TimedRobot):
         self.roller.log()
         self.ledController.log()
 
+    autonomousPeriodic = teleopPeriodic
+    autonomousInit = teleopInit
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)

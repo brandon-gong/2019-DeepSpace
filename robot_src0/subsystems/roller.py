@@ -16,6 +16,8 @@ class Roller():
         self.pivotdownbutton = JoystickButton(self.stick, 10)
         self.pistonoutbutton = JoystickButton(self.stick, 8)
         self.pistoninbutton = JoystickButton(self.stick, 7)
+        #self.ratchetswitchbutton = JoystickButton(self.stick, 15)
+        #self.ratchetbtnpressed = False
         #self.pivotstopbutton = JoystickButton(self.stick, 14)
         #self.pivotinitbutton = JoystickButton(self.stick, 13)
         self.rollerout = JoystickButton(self.stick, 9)
@@ -23,12 +25,16 @@ class Roller():
         self.state = initial_state
         self.pivot.selectProfileSlot(0,0)
         self.switch =  wpilib.DigitalInput(2)
+        self.count = 0
 
         self.sol2 = wpilib.Solenoid(5,3)
         self.sol1 = wpilib.Solenoid(5,0)
         self.sol1.set(False)
         self.sol2.set(True)
 
+        self.ratchet = wpilib.Solenoid(5,6)
+        self.ratchetEnabled = False
+        self.ratchet.set(not self.ratchetEnabled)
     def update(self):
 
         if (self.state is not "init") and (not self.rollerenabler.get()):
@@ -71,7 +77,7 @@ class Roller():
         self.state_table[self.state](self)
 
         if self.rollerin.get():
-            self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, 1)
+            self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, -1)
         #elif self.rollerout.get():
         #    self.roller_motor.set(WPI_TalonSRX.ControlMode.PercentOutput, -1)
         else:
@@ -82,6 +88,7 @@ class Roller():
         wpilib.SmartDashboard.putNumber("roller_position", self.pivot.getSelectedSensorPosition())
 
     def state_init(self):
+        self.ratchet.set(not self.ratchetEnabled)
         if self.rollerenabler.get():
             self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
             self.pivot.setQuadraturePosition(0)
@@ -93,12 +100,14 @@ class Roller():
         else:
             self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
             self.pivot.setQuadraturePosition(0)
+            self.ratchet.set(self.ratchetEnabled)
             self.state = 'manual'
 
     def state_manual(self):
         pass
 
     def state_up(self):
+
         self.pivot.set(WPI_TalonSRX.ControlMode.Position, self.POSITION_TOP)
         #if self.pivot.getSelectedSensorPosition() > self.POSITION_TOP + 500:
         #    self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput, 0)
@@ -111,7 +120,19 @@ class Roller():
             self.sol1.set(False)
             self.sol2.set(True)
 
+        self.ratchet.set(self.ratchetEnabled)
     def state_down(self):
+        self.pivot.set(WPI_TalonSRX.ControlMode.PercentOutput,.1)
+        self.ratchet.set(not self.ratchetEnabled)
+
+        if self.count == 0:
+            self.state = "post_state_down"
+        self.count += 1
+    def post_state_down(self):
+        self.count = 0
+        
+        self.ratchet.set(not self.ratchetEnabled)
+
         self.pivot.set(
                 WPI_TalonSRX.ControlMode.PercentOutput,
                 -.4
@@ -124,7 +145,10 @@ class Roller():
             self.sol1.set(False)
             self.sol2.set(True)
 
+
+
     state_table = {
+        "post_state_down": post_state_down,
         "manual": state_manual,
         "up": state_up,
         "down": state_down,
