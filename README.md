@@ -1,13 +1,12 @@
 <img src="logo.png" align="left" height=100 />
 
 # Deep Space 2019
-[![Build Status](https://travis-ci.org/dragonrobotics/2019-DeepSpace.svg?branch=master)](https://travis-ci.org/dragonrobotics/2019-DeepSpace) ![Version](https://img.shields.io/badge/version-v2019.1.0-informational.svg)<br><br>
+[![Build Status](https://travis-ci.org/dragonrobotics/2019-DeepSpace.svg?branch=master)](https://travis-ci.org/dragonrobotics/2019-DeepSpace) ![Version](https://img.shields.io/badge/version-v2019.2.1-informational.svg)<br><br>
 This repository holds the code developed by Dragon Robotics this year for the 2019 season, Deep Space.  It contains code for the robot, vision processing, custom dashboard, and Arduino LED's.  As of 2/19/19 (stop build day), development has stopped on the `master` branch of this repository.  To view changes post-stop build day, switch over to the `beta` branch.
 <br><br>
 The repository's code is structured as such:
 ### `arduino_src`
 Contains test code for PWM control of an individually-addressable RGB LED strip via Arduino.  This code communicates over Serial with the RoboRIO and is able to change the display state of the LED's based on serial readings.  We make use of the [FastLED](http://fastled.io/) library for LED control. <br>
-As of stop build day, the LED code is only a slightly modified version of the example test code, configured to work with serial.  More progress will be made on this code in preparation for competition.
 
 ### `dashboard_src`
 Contains code for the custom dashboard.  We hope that it becomes a continual project that can be reused in later years.  This is a fork of [FRCDashboard](https://github.com/FRCDashboard/FRCDashboard) and runs on Electron and web technologies. <br>
@@ -24,6 +23,6 @@ Our robot code is written in python using [RobotPy](https://robotpy.readthedocs.
 - The `log()` function outputs statistics and debug information to SmartDashboard and is called _once_ per `disabledPeriodic()` and `teleopPeriodic()`.
 
 ### `vision_src`
-Contains vision processing code, which runs on the Raspberry Pi and communicates with the robot code over NetworkTables. 
+Contains vision processing code, which runs on the Raspberry Pi and communicates with the robot code over NetworkTables.
 The current vision code, while working, does not provide an accurate and stable enough measurement to be used at competition.  It will be modified and improved upon using SIFT/ORB to be more flexible and less susceptible to background noise. <br>
 In addition, `vision_src` also contains code for a Java/OpenCV GUI test bed, running on Swing, which allows for relatively fast and live testing and debugging.
