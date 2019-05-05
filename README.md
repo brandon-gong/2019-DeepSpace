@@ -2,7 +2,8 @@
 
 # Deep Space 2019
 [![Build Status](https://travis-ci.org/dragonrobotics/2019-DeepSpace.svg?branch=master)](https://travis-ci.org/dragonrobotics/2019-DeepSpace) ![Version](https://img.shields.io/badge/version-v2019.2.1-informational.svg)<br><br>
-This repository holds the code developed by Dragon Robotics this year for the 2019 season, Deep Space.  It contains code for the robot, vision processing, custom dashboard, and Arduino LED's.  As of 2/19/19 (stop build day), development has stopped on the `master` branch of this repository.  To view changes post-stop build day, switch over to the `beta` branch.
+This repository holds the code developed by Dragon Robotics this year for the 2019 season, Deep Space.  It contains code for the robot, vision processing, custom dashboard, and Arduino LED's.
+
 <br><br>
 The repository's code is structured as such:
 ### `arduino_src`
