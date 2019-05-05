@@ -1,3 +1,5 @@
+_You are currently viewing the `competition` branch of this repository. This is the uncleaned, untouched code after competition. For a more organized and clean view of the code, switch to the master branch._
+
 <img src="logo.png" align="left" height=100 />
 
 # Deep Space 2019
@@ -24,6 +26,6 @@ Our robot code is written in python using [RobotPy](https://robotpy.readthedocs.
 - The `log()` function outputs statistics and debug information to SmartDashboard and is called _once_ per `disabledPeriodic()` and `teleopPeriodic()`.
 
 ### `vision_src`
-Contains vision processing code, which runs on the Raspberry Pi and communicates with the robot code over NetworkTables. 
+Contains vision processing code, which runs on the Raspberry Pi and communicates with the robot code over NetworkTables.
 The current vision code, while working, does not provide an accurate and stable enough measurement to be used at competition.  It will be modified and improved upon using SIFT/ORB to be more flexible and less susceptible to background noise. <br>
 In addition, `vision_src` also contains code for a Java/OpenCV GUI test bed, running on Swing, which allows for relatively fast and live testing and debugging.
