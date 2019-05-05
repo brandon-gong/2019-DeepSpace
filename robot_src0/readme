@@ -1,0 +1,33 @@
+competition notes:
+- leds still not working. probably an issue on the robotpy side.
+  different ports have been tried but unsuccessful.
+  try reset() and/or close() @ knox.
+- roller.py needs to be refactored into climber.py. init and up stated work well.
+  I don't know which way the roller goed when the button is pressed. it might be going the wrong way.
+  piston is working too.
+  currently there is an "enabler" button that needs to be pressed and held during climb otherwise the
+  climb will cancel. it also allows us to reuse some of the lift buttons for climb.
+- there is a bug that causes the robot to not move after disable/re-enable. is this a software issue?
+- base.py has been tweaked such that the maximum sensitivity is decreased by 10% power and the lowest
+  sensitivity is incre
+- added "autonomousInit == teleopInit" and "autonomousPeriodic == teleopPeriodic" to enable normal
+  control during sandstorm
+- rpi camera server fails to stream video for unknown reasons. we switched to directly plugging the
+  camera into a usb port on the roborio and calling wpilib.CameraServer.launch(). worked well for the
+  next several matches and then mysteriously stopped working again.
+- arm and hatch solenoids somehow got switched. the controls have been switched but the logging is still incorrect;
+  i.e. "armsolenoid1" is actually "hatchsolenoid1" on smartdashboard.
+- todo: merge solenoid state logging into a single wpilib smartdashboard variable
+  ex. "hatchsolenoid1" and "hatchsolenoid2" => "hatchIsOpen"
+- todo: improved driver station
+- holding voltage on lift has been slightly increased to do a better job at holding
+- robot_src0 lift.py has been modified greatly to support doing more than one line of code per state. lambdas have been abandoned.
+- robot_src0 __init__.py had been modified to include Roller and LEDController imports
+- back lifting pneumatic cylinders controls have been added to roller.py.
+- navx is unneeded. consider removing from code if it causes issues.
+
+  
+  
+
+
+
