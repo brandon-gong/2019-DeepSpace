@@ -6,7 +6,7 @@ This repository holds the code developed by Dragon Robotics this year for the 20
 
 <br><br>
 The repository's code is structured as such:
-### `arduino_src`
+### `arduino_src` 
 Contains test code for PWM control of an individually-addressable RGB LED strip via Arduino.  This code communicates over Serial with the RoboRIO and is able to change the display state of the LED's based on serial readings.  We make use of the [FastLED](http://fastled.io/) library for LED control. <br>
 
 ### `dashboard_src`
